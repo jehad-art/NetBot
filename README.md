@@ -68,7 +68,7 @@ This is an implementation of the paper made by H. M. D. G. V. Perera et al.[1]<b
 Using the `git` command from the terminal:
 
 ```bash
-$ git clone https://github.com/jehad-art/NetOrb.git
+$ git clone https://github.com/jehad-art/NetBot.git
 ```
 
 or by clicking on `Code >> Local >> Download ZIP` on the repository main page.
