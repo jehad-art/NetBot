@@ -1,0 +1,63 @@
+{
+    "version": "version 12.4",
+    "password-encryption": "no service password-encryption",
+    "hostname": "NetOrb",
+    "enable-login": "enable password cisco",
+    "aaa-auth": "no aaa new-model",
+    "icmp-DOS-protect": "no ip icmp rate-limit unreachable",
+    "domain-name": "ip domain name netorb.com",
+    "username": "username cisco password 0 cisco",
+    "SSH-version": "ip ssh version 2",
+    "int0": {
+        "name": "FastEthernet0/0",
+        "ip-address": "ip address 192.168.2.1 255.255.255.0",
+        "duplex": "auto",
+        "speed": "auto",
+        "status": "up"
+    },
+    "int1": {
+        "name": "interface Serial0/0",
+        "ip-address": "no ip address",
+        "duplex": "auto",
+        "speed": "auto",
+        "status": "shutdown"
+    },
+    "int2": {
+        "name": "FastEthernet0/0",
+        "ip-address": "no ip address",
+        "duplex": "auto",
+        "speed": "auto",
+        "status": "shutdown"
+    },
+    "int3": {
+        "name": "FastEthernet0/0",
+        "ip-address": "no ip address",
+        "duplex": "auto",
+        "speed": "auto",
+        "status": "shutdown"
+    },
+    "http-server": "no ip http server",
+    "https-server": "no ip http secure-server",
+    "line0": {
+        "name": "line con 0",
+        "idle-session-timeout": "exec-timeout 0 0",
+        "privilage": "privilege level 15",
+        "password": "",
+        "login-source": ""
+    },
+    "line1": {
+        "name": "line aux 0",
+        "idle-session-timeout": "exec-timeout 0 0",
+        "privilage": "privilege level 15",
+        "password": "",
+        "login-source": ""
+    },
+    "line2": {
+        "name": "line vty 0 4",
+        "idle-session-timeout": "",
+        "privilage": "privilege level 15",
+        "password": "password cisco",
+        "login-source": "login local",
+        "access-protocol": "all"
+    }
+}
