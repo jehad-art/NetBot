@@ -107,11 +107,11 @@ def post_to_backend(ip, open_ports):
         r = requests.post(f"{API_BASE}/devices/discovered", json=payload, timeout=10)
         
         if r.status_code == 200:
-            print(f"[+] Successfully reported device {ip} with ports {open_ports}")
+            print(f"Successfully reported device {ip} with ports {open_ports}")
         else:
-            print(f"[!] Failed to report {ip}: {r.status_code} - {r.text}")
+            print(f"Failed to report {ip}: {r.status_code} - {r.text}")
     except Exception as e:
-        print(f"[X] Error posting device {ip}: {e}")
+        print(f"Error posting device {ip}: {e}")
 
 def get_credentials(ip):
     try:
@@ -119,16 +119,16 @@ def get_credentials(ip):
         if r.status_code == 200:
             return r.json()
     except Exception as e:
-        print(f"[!] Error getting credentials for {ip}: {e}")
+        print(f"Error getting credentials for {ip}: {e}")
     return None
 
 def send_config(config):
     try:
         r = requests.post(f"{API_BASE}/devices/submit_config", json=config, timeout=10)
-        print(f"[+] Submitted config for {config.get('device_ip')}: {r.status_code}")
+        print(f"Submitted config for {config.get('device_ip')}: {r.status_code}")
         print(f"[DEBUG] Backend response: {r.text}")
     except Exception as e:
-        print(f"[X] Failed to submit config for {config.get('device_ip')}: {e}")
+        print(f"Failed to submit config for {config.get('device_ip')}: {e}")
 
 
 
@@ -431,8 +431,8 @@ def collect_config(device):
         config_json["sections"].get("raw_config", [])
     )
     # Only delete raw_config if parsed_config is valid
-    if config_json["sections"].get("parsed_config"):
-        del config_json["sections"]["raw_config"]
+    #if config_json["sections"].get("parsed_config"):
+        #del config_json["sections"]["raw_config"]
 
     return config_json
 
