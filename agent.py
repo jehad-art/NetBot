@@ -27,7 +27,8 @@ commands = {
     "interfaces": "show ip interface brief",
     "routes": "show ip route",
     "access_lists": "show access-lists",
-    "ip_protocols": "show ip protocols"
+    "ip_protocols": "show ip protocols",
+    "cdp_neighbors": "show cdp neighbors detail"
 }
 
 # SQLite Helpers
@@ -93,7 +94,7 @@ def discover_hosts(subnet, max_workers=100):
                 if result:
                     results.append(result)
             except Exception as e:
-                print(f"[!] Error scanning {futures[future]}: {e}")
+                print(f"Error scanning {futures[future]}: {e}")
     return results
 
 # API Calls
@@ -387,6 +388,40 @@ def extract_nat_rules(run_config_lines):
                 nat_rules.append(rule)
     return nat_rules
 
+def extract_interface_modes(raw_lines):
+    modes = {}
+    current_iface = None
+
+    for line in raw_lines:
+        line = line.strip()
+        if line.startswith("interface "):
+            current_iface = line.split()[1]
+        elif line.startswith("switchport mode") and current_iface:
+            mode = line.split()[-1]
+            modes[current_iface] = mode
+    return modes
+
+def parse_cdp_neighbors(output):
+    neighbors = {}
+    blocks = output.split("Device ID:")
+
+    for block in blocks[1:]:  # skip the first empty split
+        lines = block.strip().splitlines()
+        device_id = lines[0].strip()
+        local_intf = ""
+        remote_intf = ""
+
+        for line in lines:
+            if "Interface:" in line and "Port ID" in line:
+                match = re.search(r'Interface: (\S+),.*Port ID.*: (\S+)', line)
+                if match:
+                    local_intf, remote_intf = match.groups()
+                    neighbors[local_intf] = {
+                        "device_id": device_id,
+                        "port_id": remote_intf
+                    }
+    return neighbors
+
 def collect_config(device):
     conn = ConnectHandler(**device)
     conn.enable()
@@ -433,6 +468,18 @@ def collect_config(device):
     # Only delete raw_config if parsed_config is valid
     #if config_json["sections"].get("parsed_config"):
         #del config_json["sections"]["raw_config"]
+
+    # Enhance interfaces with mode + CDP neighbor info
+    raw_lines = config_json["sections"].get("raw_config", [])
+    modes = extract_interface_modes(raw_lines)
+    cdp_neighbors = parse_cdp_neighbors(raw_outputs.get("cdp_neighbors", ""))
+
+    for iface in config_json["sections"].get("interfaces", []):
+        name = iface.get("name")
+        if name:
+            iface["mode"] = modes.get(name, "unknown")
+            if name in cdp_neighbors:
+                iface["cdp_neighbor"] = cdp_neighbors[name]
 
     return config_json
 
