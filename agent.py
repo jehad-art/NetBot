@@ -405,15 +405,17 @@ def parse_cdp_neighbors(output):
     neighbors = {}
     blocks = output.split("Device ID:")
 
-    for block in blocks[1:]:  # skip the first empty split
+    for block in blocks[1:]:
         lines = block.strip().splitlines()
+        if not lines:
+            continue
         device_id = lines[0].strip()
         local_intf = ""
         remote_intf = ""
 
         for line in lines:
             if "Interface:" in line and "Port ID" in line:
-                match = re.search(r'Interface: (\S+),.*Port ID.*: (\S+)', line)
+                match = re.search(r'Interface:\s+(\S+),.*Port ID.*:\s+(\S+)', line)
                 if match:
                     local_intf, remote_intf = match.groups()
                     neighbors[local_intf] = {
@@ -472,7 +474,11 @@ def collect_config(device):
     # Enhance interfaces with mode + CDP neighbor info
     raw_lines = config_json["sections"].get("raw_config", [])
     modes = extract_interface_modes(raw_lines)
-    cdp_neighbors = parse_cdp_neighbors(raw_outputs.get("cdp_neighbors", ""))
+
+    # Fix: convert list to string before parsing CDP
+    cdp_raw = config_json["sections"].get("cdp_neighbors", [])
+    cdp_output = "\n".join(cdp_raw) if isinstance(cdp_raw, list) else cdp_raw
+    cdp_neighbors = parse_cdp_neighbors(cdp_output)
 
     for iface in config_json["sections"].get("interfaces", []):
         name = iface.get("name")
@@ -480,8 +486,6 @@ def collect_config(device):
             iface["mode"] = modes.get(name, "unknown")
             if name in cdp_neighbors:
                 iface["cdp_neighbor"] = cdp_neighbors[name]
-
-    return config_json
 
 def is_known_device(ip):
     headers = {
